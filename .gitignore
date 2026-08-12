@@ -216,3 +216,34 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- VISHALYA CUSTOM EXCLUSIONS ---
+
+# Environment Variables (CRITICAL SECURITY)
+.env
+.env.local
+.env.*
+
+# Python Machine Learning / Backend Junk
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.ipynb_checkpoints/
+
+# Flutter / Dart Mobile Build Junk
+.dart_tool/
+build/
+.pub-cache/
+.packages
+*.log
+
+# IDE & Editor Junk (PREVENTS MERGE CONFLICTS)
+.vscode/
+.idea/
+*.iml
+*.swp
+
+# OS Junk
+.DS_Store
+Thumbs.db
