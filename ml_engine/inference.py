@@ -1,51 +1,32 @@
-import os
-import json
 import joblib
-import pandas as pd
+import numpy as np
+import os
 
+# Resolve path automatically
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(BASE_DIR)
-MODEL_PATH = os.path.join(BASE_DIR, 'vishalya_rf_model.pkl')
-JSON_PATH = os.path.join(PROJECT_ROOT, 'shared_contracts', 'symptom_schema.json')
+MODEL_PATH = os.path.join(BASE_DIR, 'vishalya_rf_model.joblib')
 
-_model = None
-_symptom_schema = None
+print("1. Loading the 1MB optimized Joblib model...")
+model = joblib.load(MODEL_PATH)
 
-def _load_assets():
-    global _model, _symptom_schema
-    if _model is None:
-        _model = joblib.load(MODEL_PATH)
-    if _symptom_schema is None:
-        with open(JSON_PATH, 'r') as f:
-            schema = json.load(f)
-            _symptom_schema = schema['symptoms']
+# =====================================================================
+# THE FEATURE MAP (Strict Order)
+# Order MUST be: fever, cough, shortness_of_breath, sore_throat, 
+# diarrhea, vomiting, headache, fatigue, skin_rash, chills, aqi_level
+# =====================================================================
 
-def predict_disease(active_symptoms: list) -> dict:
-    _load_assets()
-    
-    # Create a dictionary setting all known symptoms to 0
-    input_data = {symptom: 0 for symptom in _symptom_schema} # type: ignore
-    
-    # Flip the value to 1 for symptoms provided by the user
-    cleaned_active_symptoms = [s.strip().lower() for s in active_symptoms]
-    for symptom in cleaned_active_symptoms:
-        if symptom in input_data:
-            input_data[symptom] = 1
-            
-    # Convert dictionary into a single-row Pandas DataFrame
-    df_input = pd.DataFrame([input_data])
-    
-    # Predict the top disease
-    prediction = _model.predict(df_input)[0] # type: ignore
-    
-    # XAI: Get prediction probabilities for transparency
-    probabilities = _model.predict_proba(df_input)[0] # type: ignore
-    
-    # Get the confidence score of the winning prediction
-    disease_index = list(_model.classes_).index(prediction) # type: ignore
-    confidence_score = round(probabilities[disease_index] * 100, 2)
-    
-    return {
-        "disease": prediction,
-        "confidence_percentage": confidence_score
-    }
+print("2. Simulating incoming data from FastAPI...")
+# Example 1: High Risk Patient (Respiratory syndrome in bad air quality)
+# fever=1, cough=1, breath=1, fatigue=1, aqi=320. Rest are 0.
+patient_1 = np.array([[1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 320]]) 
+
+# Example 2: Low Risk Patient (Just a mild headache, clean air)
+# headache=1, aqi=80. Rest are 0.
+patient_2 = np.array([[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 80]])
+
+print("\n3. Running Predictions...")
+risk_1 = model.predict(patient_1)
+risk_2 = model.predict(patient_2)
+
+print(f"Patient 1 Risk: {'HIGH DANGER (1) 🚨' if risk_1[0] == 1 else 'LOW (0) ✅'}")
+print(f"Patient 2 Risk: {'HIGH DANGER (1) 🚨' if risk_2[0] == 1 else 'LOW (0) ✅'}")
