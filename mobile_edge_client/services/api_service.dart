@@ -4,7 +4,7 @@ import 'patient_model.dart';
 
 class ApiService {
   // REPLACE this with Ashish's local IP or Ngrok URL during testing
-  static const String baseUrl = 'http://192.168.1.xxx:8000'; 
+  static const String baseUrl = 'https://vishalya.onrender.com/'; 
 
   Future<Map<String, dynamic>?> predictRisk(PatientModel patient) async {
     try {
