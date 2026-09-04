@@ -2,6 +2,7 @@ import os
 import logging
 import joblib
 import numpy as np
+import pandas as pd
 from backend.core import config
 from backend.models.pydantic_models import SymptomRequest
 
@@ -72,11 +73,11 @@ class RiskPredictorService:
             aqi_level
         ]
 
-        # Shape: (1, 11)
-        input_matrix = np.array([feature_vector], dtype=float)
+        # Shape: (1, 11) with matching feature column names
+        input_data = pd.DataFrame([feature_vector], columns=FEATURE_ORDER)
 
         try:
-            raw_result = self.model.predict(input_matrix)
+            raw_result = self.model.predict(input_data)
             prediction = int(raw_result[0])
             if prediction not in (0, 1):
                 raise ValueError(f"Invalid model prediction output: {prediction}")

@@ -1,5 +1,5 @@
 import joblib
-import numpy as np
+import pandas as pd
 import os
 
 # Resolve path automatically
@@ -14,15 +14,18 @@ model = joblib.load(MODEL_PATH)
 # Order MUST be: fever, cough, shortness_of_breath, sore_throat, 
 # diarrhea, vomiting, headache, fatigue, skin_rash, chills, aqi_level
 # =====================================================================
+FEATURE_ORDER = [
+    "fever", "cough", "shortness_of_breath", "sore_throat",
+    "diarrhea", "vomiting", "headache", "fatigue",
+    "skin_rash", "chills", "aqi_level"
+]
 
 print("2. Simulating incoming data from FastAPI...")
 # Example 1: High Risk Patient (Respiratory syndrome in bad air quality)
-# fever=1, cough=1, breath=1, fatigue=1, aqi=320. Rest are 0.
-patient_1 = np.array([[1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 320]]) 
+patient_1 = pd.DataFrame([[1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 320]], columns=FEATURE_ORDER) 
 
 # Example 2: Low Risk Patient (Just a mild headache, clean air)
-# headache=1, aqi=80. Rest are 0.
-patient_2 = np.array([[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 80]])
+patient_2 = pd.DataFrame([[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 80]], columns=FEATURE_ORDER)
 
 print("\n3. Running Predictions...")
 risk_1 = model.predict(patient_1)
