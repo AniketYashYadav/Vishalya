@@ -9,7 +9,7 @@ class ApiService {
   Future<Map<String, dynamic>?> predictRisk(PatientModel patient) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/predict_risk'),
+        Uri.parse('$baseUrl/api/predict'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(patient.toJson()),
       );
